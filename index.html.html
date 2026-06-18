@@ -11,19 +11,23 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #F5F4FB; min-height: 100vh; }
+  .app { max-width: 480px; margin: 0 auto; padding: 0 0 60px; }
 
-  .app { max-width: 480px; margin: 0 auto; padding: 0 0 40px; }
-
+  /* 헤더 */
   .header { background: linear-gradient(135deg, #7F77DD 0%, #534AB7 100%); color: white; padding: 52px 20px 28px; text-align: center; }
   .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
   .header .date-label { font-size: 14px; opacity: 0.85; margin-top: 6px; }
 
+  /* 탭 */
   .tabs { display: flex; background: white; border-bottom: 1px solid #EEEDFE; position: sticky; top: 0; z-index: 10; }
   .tab { flex: 1; padding: 14px; font-size: 14px; font-weight: 500; color: #888; text-align: center; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; }
   .tab.active { color: #534AB7; border-bottom-color: #534AB7; }
 
   .section { padding: 20px 16px 0; }
+  .view { display: none; }
+  .view.active { display: block; }
 
+  /* 오늘 체크 */
   .checklist { display: flex; flex-direction: column; gap: 10px; }
   .check-item { display: flex; align-items: center; gap: 14px; padding: 16px; background: white; border-radius: 14px; border: 1.5px solid #EEEDFE; cursor: pointer; transition: all 0.15s; }
   .check-item.checked { border-color: #7F77DD; background: #EEEDFE; }
@@ -31,55 +35,85 @@
   .check-item.checked .check-icon { background: #7F77DD; border-color: #7F77DD; }
   .check-icon svg { display: none; }
   .check-item.checked .check-icon svg { display: block; }
-  .check-label { font-size: 16px; color: #222; font-weight: 400; }
+  .check-label { font-size: 16px; color: #222; }
   .check-item.checked .check-label { color: #3C3489; font-weight: 500; }
-
   .save-area { padding: 20px 16px 0; }
-  .save-btn { width: 100%; padding: 16px; background: #7F77DD; color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; letter-spacing: -0.2px; }
+  .save-btn { width: 100%; padding: 16px; background: #7F77DD; color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; }
   .save-btn:active { background: #534AB7; transform: scale(0.98); }
   .saved-msg { text-align: center; font-size: 14px; color: #534AB7; margin-top: 10px; min-height: 22px; font-weight: 500; }
 
+  /* 요약 카드 */
   .summary-bar { display: flex; gap: 10px; margin-bottom: 16px; }
   .summary-card { flex: 1; background: white; border-radius: 12px; padding: 14px 8px; text-align: center; border: 1px solid #EEEDFE; }
   .summary-card .num { font-size: 24px; font-weight: 700; color: #534AB7; }
   .summary-card .lbl { font-size: 11px; color: #888; margin-top: 3px; }
 
-  .history-header { font-size: 12px; font-weight: 600; color: #AAA; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-
-  /* 월 네비게이션 */
+  /* 월 네비 */
   .month-nav { display: flex; align-items: center; justify-content: space-between; background: white; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; border: 1px solid #EEEDFE; }
-  .month-nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #EEEDFE; background: #F5F4FB; color: #534AB7; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .month-nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #EEEDFE; background: #F5F4FB; color: #534AB7; font-size: 22px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .month-nav-btn:disabled { color: #CCC; border-color: #EEE; background: #FAFAFA; cursor: default; }
   .month-nav-btn:not(:disabled):active { background: #EEEDFE; }
-  .month-nav-title { font-size: 17px; font-weight: 700; color: #3C3489; letter-spacing: -0.3px; }
+  .month-nav-title { font-size: 17px; font-weight: 700; color: #3C3489; }
 
-  /* 표 형태 기록 */
+  /* 기록 표 */
   .history-table { width: 100%; background: white; border-radius: 14px; overflow: hidden; border: 1px solid #EEEDFE; }
-  .history-table-head { display: grid; grid-template-columns: 36px repeat(6, 1fr); background: #7F77DD; }
-  .history-table-head .col-head { padding: 8px 2px; text-align: center; font-size: 10px; font-weight: 600; color: white; line-height: 1.3; }
-  .history-table-head .col-head.date-head { font-size: 10px; color: rgba(255,255,255,0.7); }
-  .history-table-row { display: grid; grid-template-columns: 36px repeat(6, 1fr); border-top: 1px solid #EEEDFE; }
-  .history-table-row:hover { background: #F5F4FB; }
-  .history-table-row .col-date { padding: 10px 4px; text-align: center; font-size: 12px; color: #666; font-weight: 500; display: flex; align-items: center; justify-content: center; }
-  .history-table-row .col-star { padding: 10px 2px; text-align: center; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-  .empty { text-align: center; padding: 3rem 0; color: #AAA; font-size: 15px; line-height: 1.8; }
+  .ht-head { display: grid; grid-template-columns: 40px repeat(6, 1fr) 34px; background: #7F77DD; }
+  .ht-head-cell { padding: 9px 2px; text-align: center; font-size: 10px; font-weight: 600; color: white; }
+  .ht-head-cell.dim { color: rgba(255,255,255,0.6); }
+  .ht-head-cell.invisible { color: transparent; }
+  .ht-row { display: grid; grid-template-columns: 40px repeat(6, 1fr) 34px; border-top: 1px solid #F0EFFE; }
+  .ht-row.is-editing { background: #F0EFFE; }
+  .ht-cell-date { display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666; font-weight: 500; padding: 10px 2px; }
+  .ht-cell-star { display: flex; align-items: center; justify-content: center; font-size: 17px; padding: 10px 1px; }
+  .ht-cell-star.tappable { cursor: pointer; border-radius: 6px; }
+  .ht-cell-star.tappable:active { background: #DDD9F8; }
+  .ht-cell-edit { display: flex; align-items: center; justify-content: center; }
+  .edit-btn { background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px; color: #BBBBCC; display: flex; align-items: center; justify-content: center; }
+  .edit-btn:active { background: #EEEDFE; }
+  .edit-btn.on { color: #534AB7; }
+  .save-row-btn { display: none; margin: 6px 10px 10px; padding: 10px; width: calc(100% - 20px); background: #7F77DD; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .save-row-btn.show { display: block; }
+  .save-row-btn:active { background: #534AB7; }
+  .empty { text-align: center; padding: 3rem 0; color: #AAA; font-size: 15px; line-height: 2; }
 
-  .view { display: none; }
-  .view.active { display: block; }
+  /* PIN 모달 */
+  .pin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; }
+  .pin-overlay.hide { display: none; }
+  .pin-box { background: white; border-radius: 24px; padding: 32px 24px 24px; width: 290px; text-align: center; }
+  .pin-title { font-size: 17px; font-weight: 700; color: #3C3489; margin-bottom: 4px; }
+  .pin-sub { font-size: 13px; color: #AAA; margin-bottom: 24px; }
+  .pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 24px; }
+  .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #C8C5EE; background: white; transition: background 0.12s, border-color 0.12s; }
+  .pin-dot.fill { background: #7F77DD; border-color: #7F77DD; }
+  .pin-dot.err  { background: #FF4F4F; border-color: #FF4F4F; }
+  .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pin-key { padding: 15px 0; background: #F5F4FB; border: none; border-radius: 12px; font-size: 22px; font-weight: 600; color: #3C3489; cursor: pointer; }
+  .pin-key:active { background: #EEEDFE; }
+  .pin-key.zero { grid-column: 2; }
+  .pin-key.back { background: transparent; color: #999; font-size: 17px; }
+  .pin-key.back:active { background: #F5F4FB; }
+  .pin-cancel { margin-top: 14px; width: 100%; padding: 12px; background: none; border: 1.5px solid #EEEDFE; border-radius: 12px; font-size: 14px; color: #AAA; cursor: pointer; }
+  .pin-cancel:active { background: #F9F9F9; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+  .shake { animation: shake 0.3s ease; }
 </style>
 </head>
 <body>
+
 <div class="app">
+  <!-- 헤더 -->
   <div class="header">
     <h1>🌷 아현이 하루 칭찬표</h1>
     <div class="date-label" id="today-label"></div>
   </div>
 
+  <!-- 탭 -->
   <div class="tabs">
-    <button class="tab active" id="tab-today" onclick="showTab('today')">오늘 체크</button>
-    <button class="tab" id="tab-history" onclick="showTab('history')">지난 기록</button>
+    <button class="tab active" id="tab-today"   onclick="showTab('today')">오늘 체크</button>
+    <button class="tab"        id="tab-history" onclick="showTab('history')">지난 기록</button>
   </div>
 
+  <!-- 오늘 체크 뷰 -->
   <div id="view-today" class="view active">
     <div class="section">
       <div class="checklist" id="checklist"></div>
@@ -90,6 +124,7 @@
     </div>
   </div>
 
+  <!-- 지난 기록 뷰 -->
   <div id="view-history" class="view">
     <div class="section">
       <div class="summary-bar" id="summary-bar"></div>
@@ -103,152 +138,330 @@
   </div>
 </div>
 
+<!-- PIN 모달 -->
+<div class="pin-overlay hide" id="pin-overlay">
+  <div class="pin-box">
+    <div class="pin-title">🔒 편집 잠금</div>
+    <div class="pin-sub">비밀번호 4자리를 입력해주세요</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key zero" onclick="pinKey('0')">0</button>
+      <button class="pin-key back" onclick="pinBack()">&#9003;</button>
+    </div>
+    <button class="pin-cancel" onclick="pinCancel()">취소</button>
+  </div>
+</div>
+
 <script>
+// ── 상수 ──────────────────────────────────────────
 const ITEMS = [
-  { id: 1, label: '정상 출근' },
-  { id: 2, label: '정상 수업' },
-  { id: 3, label: '부모와 연락 잘하기' },
-  { id: 4, label: '손절, 차단하지 않기' },
-  { id: 5, label: '귀가시간 지키기' },
-  { id: 6, label: '화났지만 참았어요' },
+  { id:1, label:'정상 출근' },
+  { id:2, label:'정상 수업' },
+  { id:3, label:'부모와 연락 잘하기' },
+  { id:4, label:'손절, 차단하지 않기' },
+  { id:5, label:'귀가시간 지키기' },
+  { id:6, label:'화났지만 참았어요' },
 ];
+const STORE_KEY   = 'ahyeon_praise_v1';
+const START_YM    = '2026-06';
+const PIN_ANSWER  = '3573';
 
-let checked = {};
-let records = {};
-const STORE_KEY = 'ahyeon_praise_records';
+// ── 상태 ──────────────────────────────────────────
+var records    = {};   // { 'YYYY-MM-DD': [id, ...] }
+var todayCheck = {};   // { id: bool }
+var currentYM  = null; // 현재 보고 있는 월 'YYYY-MM'
+var editKey    = null; // 현재 편집 중인 날짜 key
+var editIds    = [];   // 편집 중인 체크 상태
+var pinBuffer  = '';   // 입력 중인 PIN
+var pinTarget  = null; // PIN 확인 후 편집할 날짜 key
 
-function getTodayKey() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+// ── 유틸 ──────────────────────────────────────────
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function formatDateLabel(key) {
+  var p = key.split('-').map(Number);
+  var days = ['일','월','화','수','목','금','토'];
+  return p[1] + '월 ' + p[2] + '일 (' + days[new Date(p[0],p[1]-1,p[2]).getDay()] + ')';
 }
 
-function formatLabel(key) {
-  const [y, m, d] = key.split('-').map(Number);
-  const days = ['일','월','화','수','목','금','토'];
-  const dt = new Date(y, m-1, d);
-  return `${m}월 ${d}일 (${days[dt.getDay()]})`;
+// 2026-06 ~ 현재 달까지 월 배열
+function allMonths() {
+  var list = [];
+  var y = 2026, m = 6;
+  var now = new Date();
+  var ey = now.getFullYear(), em = now.getMonth()+1;
+  while (y < ey || (y===ey && m<=em)) {
+    list.push(y + '-' + pad(m));
+    m++; if (m>12) { m=1; y++; }
+  }
+  return list;
 }
 
-function load() {
+// 해당 월에서 오늘까지의 날짜 배열 (내림차순)
+function daysOfMonth(ym) {
+  var p  = ym.split('-').map(Number);
+  var y  = p[0], m = p[1];
+  var today = new Date(); today.setHours(0,0,0,0);
+  var last  = new Date(y, m, 0).getDate();
+  var keys  = [];
+  for (var d=1; d<=last; d++) {
+    var dt = new Date(y, m-1, d);
+    if (dt > today) break;
+    keys.push(y + '-' + pad(m) + '-' + pad(d));
+  }
+  return keys.reverse();
+}
+
+// ── 데이터 저장/로드 ──────────────────────────────
+function saveRecords() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(records)); } catch(e) {}
+}
+function loadData() {
   try {
-    const raw = localStorage.getItem(STORE_KEY);
+    var raw = localStorage.getItem(STORE_KEY);
     if (raw) records = JSON.parse(raw);
   } catch(e) { records = {}; }
-  const todayKey = getTodayKey();
-  checked = {};
-  if (records[todayKey]) records[todayKey].forEach(id => { checked[id] = true; });
-  document.getElementById('today-label').textContent = formatLabel(todayKey);
+  var tk = todayKey();
+  todayCheck = {};
+  if (records[tk]) records[tk].forEach(function(id){ todayCheck[id]=true; });
+  document.getElementById('today-label').textContent = formatDateLabel(tk);
   renderChecklist();
 }
 
+// ── 오늘 체크 ─────────────────────────────────────
 function renderChecklist() {
-  const cl = document.getElementById('checklist');
+  var cl = document.getElementById('checklist');
   cl.innerHTML = '';
-  ITEMS.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'check-item' + (checked[item.id] ? ' checked' : '');
-    div.innerHTML = `<div class="check-icon"><svg width="14" height="11" viewBox="0 0 14 11" fill="none"><polyline points="1.5,5.5 5,9.5 12.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">${item.label}</span>`;
-    div.onclick = () => { checked[item.id] = !checked[item.id]; renderChecklist(); };
+  ITEMS.forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'check-item' + (todayCheck[item.id] ? ' checked' : '');
+    div.innerHTML =
+      '<div class="check-icon">' +
+        '<svg width="14" height="11" viewBox="0 0 14 11" fill="none">' +
+          '<polyline points="1.5,5.5 5,9.5 12.5,1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</div>' +
+      '<span class="check-label">' + item.label + '</span>';
+    div.onclick = function() {
+      todayCheck[item.id] = !todayCheck[item.id];
+      renderChecklist();
+    };
     cl.appendChild(div);
   });
 }
-
 function saveToday() {
-  const todayKey = getTodayKey();
-  const ids = Object.keys(checked).filter(k => checked[k]).map(Number);
-  records[todayKey] = ids;
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(records));
-    const msg = document.getElementById('saved-msg');
-    msg.textContent = ids.length === 0 ? '저장됐어요. 내일은 더 잘할 수 있어! 💪' : `${ids.length}개 저장! ${'⭐'.repeat(ids.length)}`;
-    setTimeout(() => { msg.textContent = ''; }, 3000);
-  } catch(e) {
-    document.getElementById('saved-msg').textContent = '저장 실패. 저장 공간을 확인해주세요.';
-  }
+  var tk  = todayKey();
+  var ids = Object.keys(todayCheck).filter(function(k){ return todayCheck[k]; }).map(Number);
+  records[tk] = ids;
+  saveRecords();
+  var msg = document.getElementById('saved-msg');
+  msg.textContent = ids.length === 0
+    ? '저장됐어요. 내일은 더 잘할 수 있어! 💪'
+    : ids.length + '개 저장! ' + '⭐'.repeat(ids.length);
+  setTimeout(function(){ msg.textContent=''; }, 3000);
 }
 
+// ── 탭 전환 ───────────────────────────────────────
 function showTab(tab) {
-  ['today','history'].forEach(t => {
-    document.getElementById('view-' + t).classList.toggle('active', t === tab);
-    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  ['today','history'].forEach(function(t) {
+    document.getElementById('view-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
   if (tab === 'history') renderHistory();
 }
 
-let currentYM = null; // 'YYYY-MM'
-
-function getMonthKeys() {
-  // 기록이 있는 월 목록 (정렬)
-  const months = new Set(Object.keys(records).map(k => k.slice(0,7)));
-  return Array.from(months).sort();
-}
-
+// ── 월 이동 ───────────────────────────────────────
 function changeMonth(dir) {
-  const months = getMonthKeys();
-  if (!months.length) return;
-  const idx = months.indexOf(currentYM);
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= months.length) return;
-  currentYM = months[newIdx];
+  var months = allMonths();
+  var idx    = months.indexOf(currentYM);
+  var ni     = idx + dir;
+  if (ni < 0 || ni >= months.length) return;
+  currentYM = months[ni];
+  editKey = null; editIds = [];
   renderHistory();
 }
 
-function renderHistory() {
-  const allKeys = Object.keys(records).sort();
-  const months = getMonthKeys();
-
-  // 총합 summary (전체 기준)
-  let totalStars = 0, perfectDays = 0;
-  allKeys.forEach(k => { totalStars += records[k].length; if (records[k].length === ITEMS.length) perfectDays++; });
-  document.getElementById('summary-bar').innerHTML = `
-    <div class="summary-card"><div class="num">${allKeys.length}</div><div class="lbl">기록한 날</div></div>
-    <div class="summary-card"><div class="num">${totalStars}</div><div class="lbl">총 ⭐</div></div>
-    <div class="summary-card"><div class="num">${perfectDays}</div><div class="lbl">만점 날 🏆</div></div>
-  `;
-
-  // 현재 월 초기화: 기록이 있으면 가장 최근 월, 없으면 이번 달
-  if (!currentYM) {
-    const now = new Date();
-    const thisYM = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-    currentYM = months.length ? months[months.length - 1] : thisYM;
+// ── PIN 모달 ──────────────────────────────────────
+function openPin(key) {
+  pinTarget = key;
+  pinBuffer = '';
+  refreshDots();
+  document.getElementById('pin-overlay').classList.remove('hide');
+}
+function pinCancel() {
+  pinBuffer = '';
+  pinTarget = null;
+  document.getElementById('pin-overlay').classList.add('hide');
+}
+function pinKey(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  refreshDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(function() {
+      if (pinBuffer === PIN_ANSWER) {
+        // 정답
+        document.getElementById('pin-overlay').classList.add('hide');
+        editKey  = pinTarget;
+        editIds  = (records[editKey] || []).slice();
+        pinTarget = null;
+        pinBuffer = '';
+        renderHistory();
+      } else {
+        // 오답 – 빨간 점 + 흔들기
+        for (var i=0; i<4; i++) document.getElementById('pd'+i).className = 'pin-dot err';
+        var dotsEl = document.getElementById('pin-dots');
+        dotsEl.classList.add('shake');
+        setTimeout(function() {
+          dotsEl.classList.remove('shake');
+          pinBuffer = '';
+          refreshDots();
+        }, 500);
+      }
+    }, 60);
   }
+}
+function pinBack() {
+  if (!pinBuffer.length) return;
+  pinBuffer = pinBuffer.slice(0,-1);
+  refreshDots();
+}
+function refreshDots() {
+  for (var i=0; i<4; i++) {
+    var dot = document.getElementById('pd'+i);
+    dot.className = 'pin-dot' + (i < pinBuffer.length ? ' fill' : '');
+  }
+}
 
-  // 월 타이틀
-  const [cy, cm] = currentYM.split('-').map(Number);
-  document.getElementById('month-title').textContent = `${cy}년 ${cm}월`;
+// ── 편집 ──────────────────────────────────────────
+function toggleEditRow(key) {
+  if (editKey === key) {
+    // 취소
+    editKey = null; editIds = [];
+    renderHistory();
+  } else {
+    openPin(key);
+  }
+}
+function toggleStar(itemId) {
+  var i = editIds.indexOf(itemId);
+  if (i >= 0) editIds.splice(i,1); else editIds.push(itemId);
+  renderHistory();
+}
+function saveEditRow() {
+  if (!editKey) return;
+  records[editKey] = editIds.slice();
+  saveRecords();
+  editKey = null; editIds = [];
+  renderHistory();
+}
 
-  // 이전/다음 버튼 활성화
-  const idx = months.indexOf(currentYM);
+// ── 지난 기록 렌더 ────────────────────────────────
+function renderHistory() {
+  var months  = allMonths();
+  var allKeys = Object.keys(records).sort();
+
+  // 요약
+  var totalStars=0, perfectDays=0;
+  allKeys.forEach(function(k){
+    totalStars += records[k].length;
+    if (records[k].length === ITEMS.length) perfectDays++;
+  });
+  document.getElementById('summary-bar').innerHTML =
+    '<div class="summary-card"><div class="num">'+allKeys.length+'</div><div class="lbl">기록한 날</div></div>' +
+    '<div class="summary-card"><div class="num">'+totalStars+'</div><div class="lbl">총 ⭐</div></div>' +
+    '<div class="summary-card"><div class="num">'+perfectDays+'</div><div class="lbl">만점 날 🏆</div></div>';
+
+  // 현재 월 초기화
+  if (!currentYM) {
+    var now = new Date();
+    currentYM = now.getFullYear() + '-' + pad(now.getMonth()+1);
+  }
+  var ym = currentYM.split('-').map(Number);
+  document.getElementById('month-title').textContent = ym[0]+'년 '+ym[1]+'월';
+
+  var idx = months.indexOf(currentYM);
   document.getElementById('btn-prev').disabled = idx <= 0;
-  document.getElementById('btn-next').disabled = idx < 0 || idx >= months.length - 1;
+  document.getElementById('btn-next').disabled = idx >= months.length-1;
 
-  // 이번 달 기록 필터
-  const list = document.getElementById('history-list');
-  const monthKeys = allKeys.filter(k => k.startsWith(currentYM)).reverse();
+  // 날짜 목록
+  var days = daysOfMonth(currentYM);
+  var list = document.getElementById('history-list');
 
-  if (!monthKeys.length) {
-    list.innerHTML = '<div class="empty">이 달에는 기록이 없어요. 😊</div>';
+  if (!days.length) {
+    list.innerHTML = '<div class="empty">이 달에는 아직 날짜가 없어요 😊</div>';
     return;
   }
 
-  const COL_LABELS = ['날짜','출근','수업','연락','차단','귀가','참기'];
-  const headHtml = COL_LABELS.map((l, i) =>
-    `<div class="col-head${i===0?' date-head':''}">${l}</div>`
-  ).join('');
+  // SVG 아이콘
+  var SVG_EDIT  = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9.2 2.2l2.6 2.6-7.4 7.4H2v-2.6l7.2-7.4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  var SVG_CLOSE = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/></svg>';
 
-  const rowsHtml = monthKeys.map(key => {
-    const ids = records[key] || [];
-    const [,,d] = key.split('-').map(Number);
-    const cols = ITEMS.map(item =>
-      `<div class="col-star">${ids.includes(item.id) ? '⭐' : '☆'}</div>`
-    ).join('');
-    return `<div class="history-table-row"><div class="col-date">${d}일</div>${cols}</div>`;
+  // 헤더
+  var head = '<div class="ht-head">' +
+    '<div class="ht-head-cell dim">날짜</div>' +
+    '<div class="ht-head-cell">출근</div>' +
+    '<div class="ht-head-cell">수업</div>' +
+    '<div class="ht-head-cell">연락</div>' +
+    '<div class="ht-head-cell">차단</div>' +
+    '<div class="ht-head-cell">귀가</div>' +
+    '<div class="ht-head-cell">참기</div>' +
+    '<div class="ht-head-cell invisible">편집</div>' +
+  '</div>';
+
+  // 각 행
+  var rows = days.map(function(key) {
+    var isEdit  = (editKey === key);
+    var ids     = isEdit ? editIds : (records[key] || []);
+    var hasRec  = !!records[key];
+    var dayNum  = Number(key.split('-')[2]);
+
+    var stars = ITEMS.map(function(item) {
+      var has = ids.indexOf(item.id) >= 0;
+      if (isEdit) {
+        return '<div class="ht-cell-star tappable" onclick="toggleStar('+item.id+')">'+(has?'⭐':'☆')+'</div>';
+      }
+      return '<div class="ht-cell-star">'+(hasRec ? (has?'⭐':'☆') : '<span style="color:#CCC;font-size:13px">-</span>')+'</div>';
+    }).join('');
+
+    var editBtn = '<div class="ht-cell-edit">' +
+      '<button class="edit-btn'+(isEdit?' on':'')+'" onclick="toggleEditRow(\''+key+'\')">' +
+        (isEdit ? SVG_CLOSE : SVG_EDIT) +
+      '</button>' +
+    '</div>';
+
+    var saveBtn = isEdit
+      ? '<button class="save-row-btn show" onclick="saveEditRow()">✓ '+dayNum+'일 저장</button>'
+      : '';
+
+    return '<div class="ht-row'+(isEdit?' is-editing':'')+'">'+
+      '<div class="ht-cell-date">'+dayNum+'일</div>'+
+      stars + editBtn +
+    '</div>' + saveBtn;
   }).join('');
 
-  list.innerHTML = `<div class="history-table"><div class="history-table-head">${headHtml}</div>${rowsHtml}</div>`;
+  list.innerHTML = '<div class="history-table">' + head + rows + '</div>';
 }
 
-load();
+// ── 초기화 ────────────────────────────────────────
+loadData();
 </script>
 </body>
 </html>
